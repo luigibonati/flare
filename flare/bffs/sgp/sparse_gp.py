@@ -190,7 +190,7 @@ class SGP_Wrapper:
                 positions=struc_cpp.positions,
             )
             train_struc.forces = struc_cpp.forces.reshape((struc_cpp.noa, 3))
-            train_struc.stress = struc_cpp.stresses
+            train_struc.stress = struc_cpp.stresses if len(struc_cpp.stresses)>0 else None #LB fix to avoid issue with force_only calculation
 
             # Add back the single atom energies to dump the original energy
             single_atom_sum = 0
@@ -275,12 +275,19 @@ class SGP_Wrapper:
             else:
                 energy = None
 
+	    #LB
+            try:
+                stress = train_struc.stress
+            except:
+                print('Warning: no stress available in train_struc.')
+                stress = None
+
             gp.update_db(
                 train_struc,
                 train_struc.forces,
                 custom_range=custom_range,
                 energy=energy,
-                stress=train_struc.stress,
+                stress=stress, #train_struc.stress, #LB
                 mode="specific",
                 sgp=None,
                 update_qr=False,
