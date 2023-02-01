@@ -279,7 +279,7 @@ class SGP_Wrapper:
             try:
                 stress = train_struc.stress
             except:
-                print('Warning: no stress available in train_struc.')
+                #print('Warning: no stress available in train_struc.')
                 stress = None
 
             gp.update_db(
