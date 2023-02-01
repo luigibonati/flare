@@ -171,10 +171,21 @@ else()
 endif()
 
 # Check for user-specified MKL package.
-if (DEFINED ENV{MKL_INCLUDE} AND DEFINED ENV{MKL_LIBS})
+
+#if (DEFINED ENV{MKL_INCLUDE} AND DEFINED ENV{MKL_LIBS})
+#  message(STATUS "Linking Eigen to user-specified MKL libraries.")
+#  include_directories($ENV{MKL_INCLUDE})
+#  target_link_libraries(flare PUBLIC $ENV{MKL_LIBS})
+#  target_compile_definitions(flare PUBLIC EIGEN_USE_MKL_ALL=1)
+
+# LB
+find_package(MKL)
+if(MKL_FOUND)
   message(STATUS "Linking Eigen to user-specified MKL libraries.")
-  include_directories($ENV{MKL_INCLUDE})
-  target_link_libraries(flare PUBLIC $ENV{MKL_LIBS})
+  message(STATUS "MKL Include: ${MKL_INCLUDE_DIRS}") # debug
+  message(STATUS "MKL Target:  ${MKL_LIBRARIES}")    # debug
+  include_directories(${MKL_INCLUDE_DIRS})
+  target_link_libraries(flare PUBLIC ${MKL_LIBRARIES})
   target_compile_definitions(flare PUBLIC EIGEN_USE_MKL_ALL=1)
 # Give the option to do a "bare-bones" build without Lapack/Lapacke.
 elseif(DEFINED ENV{NO_LAPACK})
