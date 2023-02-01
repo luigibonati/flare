@@ -185,6 +185,11 @@ class OTF:
 
         self.flare_calc = self.atoms.calc
 
+	# Fix atoms LB
+        from ase.constraints import FixAtoms
+        if 'fixed_atoms'  in self.atoms.arrays:
+            self.atoms.set_constraint( FixAtoms( mask=self.atoms.get_array('fixed_atoms') ) )
+
         # set DFT
         self.dft_calc = dft_calc
         self.dft_step = True
