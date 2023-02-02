@@ -35,6 +35,8 @@ from flare.utils import NumpyEncoder
 from flare.atoms import FLARE_Atoms
 from flare.bffs.gp.calculator import FLARE_Calculator
 
+#LB 
+from subprocess import check_call
 
 class OTF:
     """Trains a Gaussian process force field on the fly during
@@ -148,6 +150,8 @@ class OTF:
         store_dft_output: Tuple[Union[str, List[str]], str] = None,
         # other args
         build_mode="bayesian",
+        # postprocessing LB
+        dft_postprocessing=None,
         **kwargs,
     ):
 
@@ -185,7 +189,7 @@ class OTF:
 
         self.flare_calc = self.atoms.calc
 
-	# Fix atoms LB
+	    # Fix atoms LB
         from ase.constraints import FixAtoms
         if 'fixed_atoms'  in self.atoms.arrays:
             self.atoms.set_constraint( FixAtoms( mask=self.atoms.get_array('fixed_atoms') ) )
@@ -246,6 +250,9 @@ class OTF:
 
         if self.build_mode not in ["bayesian", "direct"]:
             raise Exception("build_mode needs to be 'bayesian' or 'direct'")
+
+        # postprocessing
+        self.dft_postprocessing = dft_postprocessing
 
         # set logger
         self.output = Output(output_name, always_flush=True, print_as_xyz=True)
@@ -555,6 +562,20 @@ class OTF:
         # write wall time of DFT calculation
         self.dft_count += 1
         self.output.conclude_dft(self.dft_count, self.start_time)
+
+        # LB do postprocessing if requested
+        if self.dft_postprocessing is not None:
+            cmd = self.dft_postprocessing
+            cmd_in_out = cmd.split('>')
+            cmd_in = cmd_in_out[0]
+            if len(cmd_in_out) == 2: # found '>' 
+                cmd_out = cmd_in_out[1]
+            elif len(cmd_in_out) == 1: # no '>', use default
+                cmd_out = 'pp.out'
+        
+            directory = './'
+            with open(f'{directory}/{cmd_out}', 'wb') as fd:
+                check_call(cmd_in.split(), cwd=directory, stdout=fd, env=os.environ)
 
         # Store DFT outputs in another folder if desired
         # specified in self.store_dft_output
