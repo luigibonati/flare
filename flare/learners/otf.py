@@ -569,7 +569,7 @@ class OTF:
             cmd_in_out = cmd.split('>')
             cmd_in = cmd_in_out[0]
             if len(cmd_in_out) == 2: # found '>' 
-                cmd_out = cmd_in_out[1]
+                cmd_out = cmd_in_out[1].strip()
             elif len(cmd_in_out) == 1: # no '>', use default
                 cmd_out = 'pp.out'
         
