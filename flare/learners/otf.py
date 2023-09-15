@@ -357,7 +357,11 @@ class OTF:
                     self.run_dft()
 
                     dft_forces = deepcopy(self.atoms.forces)
-                    dft_stress = deepcopy(self.atoms.stress)
+                    # LB: add try/except to deal with no stress data
+                    try:
+                        dft_stress = deepcopy(self.atoms.stress)
+                    except:
+                        dft_stress = None
                     dft_energy = self.atoms.potential_energy
 
                     # run MD step & record the state
@@ -434,7 +438,11 @@ class OTF:
         # call dft and update positions
         self.run_dft()
         dft_frcs = deepcopy(self.atoms.forces)
-        dft_stress = deepcopy(self.atoms.stress)
+        # LB: add try/except to deal with no stress data (not sure if needed also here)
+        try:
+            dft_stress = deepcopy(self.atoms.stress)
+        except:
+            dft_stress = None
         dft_energy = self.atoms.potential_energy
 
         self.update_temperature()
@@ -550,7 +558,12 @@ class OTF:
             forces = None
 
         if "stress" in self.dft_calc.implemented_properties:
-            stress = self.atoms.get_stress()
+            # LB disable error if stress is not in DFT results
+            try:
+                stress = self.atoms.get_stress()
+            except:
+                print('Warning: stress not available')
+                stress = None   
         else:
             stress = None
 
