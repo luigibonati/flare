@@ -157,6 +157,14 @@ class LAMMPS_MOD(LAMMPS):
                 compute_command += "compute " + cmd + "\n"
             self.parameters["model_post"] += compute_command
 
+        # LB
+        # Add "shell" command after "dump_modify" (and before run)
+        if "shell" in self.parameters:
+            shell_command = "\n"
+            for cmd in self.parameters["shell"]:
+                shell_command += "shell " + cmd + "\n"
+            self.parameters["model_post"] += shell_command
+
         # Always unfix "nve" defined in ASE
         if "fix" in self.parameters:
             self.parameters["fix"][-1] += "\nunfix fix_nve"
