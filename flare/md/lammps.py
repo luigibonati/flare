@@ -262,11 +262,15 @@ class LAMMPS_MD(MolecularDynamics):
             self.uncertainty_file = "L_inv_lmp.flare sparse_desc_lmp.flare"
 
         self.params["model_post"] += [f"reset_timestep {self.nsteps}"]
+        
+        # LB add unfix
+        unfix = "".join([ f"'unfix {p.split(' ')[0]}' "  for p in self.params["fix"]])
         self.params["run"] = (
             f"{N_steps} upto every {self.params['dump_period']} "
-            f"\"if '$(c_MaxUnc) > {std_tolerance}' then quit\""
+            #f"\"if '$(c_MaxUnc) > {std_tolerance}' then quit\"" 
+            f"\"if '$(c_MaxUnc) > {std_tolerance}' then {unfix} quit\""
         )
-
+        
         lmp_calc, params = get_flare_lammps_calc(
             pair_style="flare",
             potfile=self.potential_file,
