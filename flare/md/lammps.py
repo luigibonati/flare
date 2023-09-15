@@ -133,6 +133,23 @@ class LAMMPS_MOD(LAMMPS):
                 region_command += "region " + cmd + "\n"
             self.parameters["model_post"] += region_command
 
+        # LB
+        # Add "group" command after "region", using `model_post`
+        group = []
+        if "group" in self.parameters:
+            group.extend(self.parameters["group"]) 
+        # add default groups if fixed_atoms is present
+        if 'fixed_atoms' in atoms.arrays:
+            mask = atoms.get_array('fixed_atoms')
+            free_atoms = [ str(i+1) for i in np.argwhere(mask==0)[:,0] ]
+            group.append(f'free_atoms id {" ".join(free_atoms)}')
+            fixed_atoms = [ str(i+1) for i in np.argwhere(mask==1)[:,0] ]
+            group.append(f'fixed_atoms id {" ".join(fixed_atoms)}')
+            group_command = "\n"
+            for cmd in group: 
+                group_command += "group " + cmd + "\n"
+            self.parameters["model_post"] += group_command
+
         # Add "compute" command after "group", using `model_post`
         if "compute" in self.parameters:
             compute_command = "\n"
