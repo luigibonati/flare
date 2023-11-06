@@ -99,7 +99,13 @@ class FLARE_Atoms(Atoms):
 
     @property
     def stress(self):
-        return self.get_stress()
+        # LB stress fix
+        try:
+            s = self.get_stress()
+        except:
+            s = None
+        return s
+        #return self.get_stress()
 
     @stress.setter
     def stress(self, stress_array):

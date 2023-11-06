@@ -196,7 +196,7 @@ class SGP_Wrapper:
                 positions=struc_cpp.positions,
             )
             train_struc.forces = struc_cpp.forces.reshape((struc_cpp.noa, 3))
-            train_struc.stress = struc_cpp.stresses
+            train_struc.stress = struc_cpp.stresses if len(struc_cpp.stresses)>0 else None #LB fix to avoid issue with force_only calculation
             train_struc.info["rel_efs_noise"] = np.array(self.rel_efs_noise[s])
 
             # Add back the single atom energies to dump the original energy
@@ -284,7 +284,12 @@ class SGP_Wrapper:
                 energy = train_struc.energy[0]
             else:
                 energy = None
-
+	    #LB
+            try:
+                stress = train_struc.stress
+            except:
+                #print('Warning: no stress available in train_struc.')
+                stress = None
             rel_efs_noise = train_struc.info.get("rel_efs_noise", [1, 1, 1])
             rel_e_noise, rel_f_noise, rel_s_noise = rel_efs_noise
 
@@ -293,7 +298,7 @@ class SGP_Wrapper:
                 train_struc.forces,
                 custom_range=custom_range,
                 energy=energy,
-                stress=train_struc.stress,
+                stress=stress, #train_struc.stress, #LB
                 mode="specific",
                 sgp=None,
                 update_qr=False,
