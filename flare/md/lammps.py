@@ -252,6 +252,7 @@ class LAMMPS_MD(MolecularDynamics):
         self.params.setdefault("compute", [])
         self.params.setdefault("timestep", str(DEFAULT_TIMESTEP[self.params["units"]]))
         self.params.setdefault("model_post", [])
+        self.params.setdefault("check_std_every", 1) 
 
         self.params.setdefault("pair_style", "mgp")
 
@@ -266,7 +267,7 @@ class LAMMPS_MD(MolecularDynamics):
         # LB add unfix
         unfix = "".join([ f"'unfix {p.split(' ')[0]}' "  for p in self.params["fix"]])
         self.params["run"] = (
-            f"{N_steps} upto every {self.params['dump_period']} "
+            f"{N_steps} upto every {self.params['check_std_every']} " # LB replace dump_period with check_std_every (if not passed it is taken from otf.min_steps_with_model)
             #f"\"if '$(c_MaxUnc) > {std_tolerance}' then quit\"" 
             f"\"if '$(c_MaxUnc) > {std_tolerance}' then {unfix} quit\""
         )
