@@ -88,7 +88,7 @@ class FakeMD(MolecularDynamics):
         for key in self.atoms.info:
             self.atoms.info[key] = new_atoms.info.get(key, None)
 
-        self.atoms.arrays.pop("forces")
+        self.atoms.arrays.pop("forces", None) #fix bug if forces are not available (synthetic md data)
         self.atoms.info.pop("free_energy", None)
         self.atoms.info.pop("stress", None)
 
@@ -104,9 +104,16 @@ class FakeMD(MolecularDynamics):
         gp_energy = self.atoms.get_potential_energy()
         gp_forces = self.atoms.get_forces()
         gp_stress = self.atoms.get_stress()
-        self.dft_energy = new_atoms.get_potential_energy()
-        self.dft_forces = new_atoms.get_forces()
-        self.dft_stress = new_atoms.get_stress()
+
+        # LB remove storing results (allows to use fakemd with real calculator)
+        #self.dft_energy = new_atoms.get_potential_energy()
+        #self.dft_forces = new_atoms.get_forces()
+
+        # LB allow also trajs without stress
+        #try:
+        #    self.dft_stress = new_atoms.get_stress()
+        #except:
+        #    self.dft_stres = None
 
         self.curr_step += 1
         self.atoms.info["step"] = self.curr_step
