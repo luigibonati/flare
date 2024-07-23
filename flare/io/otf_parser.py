@@ -41,6 +41,7 @@ class OtfAnalysis:
         self.times = []
         self.energies = []
         self.thermostat = {}
+        self.species_list = [] # LB allow for different number of atoms in traj
 
         self.gp_position_list = []
         self.gp_cell_list = []
@@ -204,7 +205,7 @@ class OtfAnalysis:
 
                     # TODO: generalize this to account for arbitrary starting list
                     append_atom_lists(
-                        [],
+                        self.species_list,#[], # LB allow for different number of atoms in traj
                         self.position_list,
                         self.force_list,
                         self.uncertainty_list,
@@ -247,7 +248,7 @@ class OtfAnalysis:
 
             cur_struc = FLARE_Atoms(
                 cell=cell,
-                symbols=species,
+                symbols=self.species_list[i], #species, LB allow for different number of atoms in traj
                 positions=self.position_list[i],
             )
             cur_struc.forces = np.array(self.force_list[i])
